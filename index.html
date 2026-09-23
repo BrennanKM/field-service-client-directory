@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field-Service Client Directory — Demo</title>
+<style>
+:root {
+  --bg: #f4f3f0;
+  --card-bg: #ffffff;
+  --ink: #161e17;
+  --ink-soft: #5c6b5c;
+  --ink-muted: #97a897;
+  --accent: #1a5e3a;
+  --accent-hover: #144d2f;
+  --accent-light: #2d8a58;
+  --accent-soft: #c8e6d5;
+  --accent-xsoft: #edf7f2;
+  --warm: #b85c0d;
+  --warm-soft: #fde8d4;
+  --sun: #c9920a;
+  --sun-soft: #fef5dc;
+  --border: #e3dfd8;
+  --border-light: #edeae5;
+  --shadow-xs: 0 1px 2px rgba(16,32,18,0.05);
+  --shadow-sm: 0 1px 4px rgba(16,32,18,0.07), 0 4px 12px rgba(16,32,18,0.04);
+  --shadow-md: 0 4px 20px rgba(16,32,18,0.10);
+  --shadow-lg: 0 12px 48px rgba(16,32,18,0.16), 0 2px 8px rgba(16,32,18,0.06);
+  --radius-xs: 6px;
+  --radius-sm: 9px;
+  --radius: 13px;
+  --radius-lg: 18px;
+  --rep-bg: #d6eddf; --rep-fg: #134e2e;
+  --fam-bg: #fde8d4; --fam-fg: #8c300b;
+  --ot-bg: #fef5dc; --ot-fg: #7a4a0a;
+  --danger: #c92020;
+  --danger-soft: #fee2e2;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px 80px; }
+
+/* HEADER */
+header {
+  background: #172b1e;
+  color: white;
+  padding: 30px 20px 26px;
+}
+.header-inner { max-width: 1200px; margin: 0 auto; position: relative; }
+header h1 {
+  margin: 0 0 5px;
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+}
+header .sub {
+  opacity: 0.55;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.1px;
+}
+
+.save-indicator {
+  position: absolute; top: 0; right: 0;
+  font-size: 11px; font-weight: 500; padding: 5px 12px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 999px;
+  opacity: 0; transition: opacity 0.2s;
+  letter-spacing: 0.2px;
+}
+.save-indicator.visible { opacity: 1; }
+.save-indicator.saving { background: rgba(251,191,36,0.18); border-color: rgba(251,191,36,0.28); }
+.save-indicator.saved  { background: rgba(52,211,153,0.18); border-color: rgba(52,211,153,0.28); }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin: 22px 0 0;
+}
+.stat {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+.stat .num { font-size: 21px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.1; }
+.stat .label { font-size: 10px; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.9px; font-weight: 600; margin-top: 3px; }
+
+/* TABS */
+.tabs {
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  padding: 0 20px;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 1px 0 var(--border);
+}
+.tabs-inner { max-width: 1200px; margin: 0 auto; display: flex; width: 100%; align-items: center; }
+.tab-btn {
+  background: none; border: none; padding: 0 2px;
+  margin-right: 20px;
+  height: 46px;
+  font-family: inherit; font-size: 14px; font-weight: 500;
+  color: var(--ink-muted); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--ink-soft); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.tabs .spacer { flex: 1; }
+.tabs button.icon-btn {
+  background: none; border: none; padding: 7px 8px;
+  cursor: pointer; color: var(--ink-muted); font-size: 15px;
+  border-radius: var(--radius-xs);
+  transition: color 0.15s, background 0.15s;
+  line-height: 1;
+}
+.tabs button.icon-btn:hover { color: var(--accent); background: var(--accent-xsoft); }
+
+/* VIEWS */
+.view { display: none; }
+.view.active { display: block; }
+
+/* CONTROLS */
+.controls {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin: 18px 0 14px;
+  box-shadow: var(--shadow-xs);
+}
+.controls-top { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+.controls-top input {
+  flex: 1; padding: 9px 13px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 14px; outline: none;
+  background: var(--bg); color: var(--ink); font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.controls-top input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26,94,58,0.09);
+  background: white;
+}
+.filter-row { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.filter-label {
+  font-size: 10px; color: var(--ink-muted);
+  text-transform: uppercase; letter-spacing: 0.9px;
+  margin-right: 2px; font-weight: 700;
+}
+.chip {
+  padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border);
+  background: var(--card-bg); font-size: 12px; cursor: pointer;
+  transition: all 0.15s; font-family: inherit; color: var(--ink-soft);
+  font-weight: 500; line-height: 1.4;
+}
+.chip:hover { border-color: var(--accent-soft); color: var(--accent); background: var(--accent-xsoft); }
+.chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+.divider { width: 1px; background: var(--border); margin: 0 4px; align-self: stretch; }
+select.sort {
+  padding: 5px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: white; font-size: 12px; font-family: inherit; cursor: pointer;
+  color: var(--ink); outline: none;
+}
+select.sort:focus { border-color: var(--accent); }
+
+/* BUTTONS */
+button.btn {
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  border: 1px solid var(--accent);
+  background: var(--accent); color: white; font-size: 13px;
+  cursor: pointer; font-family: inherit; font-weight: 600;
+  transition: background 0.15s, border-color 0.15s; white-space: nowrap;
+  letter-spacing: 0.1px; line-height: 1.4;
+}
+button.btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+button.btn.secondary {
+  background: white; color: var(--accent);
+  border-color: var(--border);
+}
+button.btn.secondary:hover { background: var(--accent-xsoft); border-color: var(--accent-soft); }
+button.btn.danger { border-color: var(--danger); background: var(--danger); color: white; }
+button.btn.danger:hover { background: #a81a1a; border-color: #a81a1a; }
+button.btn.small { padding: 5px 11px; font-size: 12px; }
+
+.results-meta { font-size: 12px; color: var(--ink-muted); margin-bottom: 12px; padding: 0 2px; font-weight: 500; }
+
+/* CARDS */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 12px; }
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow-xs);
+  display: flex; flex-direction: column; gap: 10px;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.card:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.card-head h3 { margin: 0; font-size: 15px; font-weight: 700; line-height: 1.3; letter-spacing: -0.2px; }
+
+.badge {
+  font-size: 9px; font-weight: 700; padding: 3px 8px;
+  border-radius: 999px; text-transform: uppercase; letter-spacing: 0.7px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.badge.repeater { background: var(--rep-bg); color: var(--rep-fg); }
+.badge.family   { background: var(--fam-bg); color: var(--fam-fg); }
+.badge.onetimer { background: var(--ot-bg);  color: var(--ot-fg); }
+
+.contact-line {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--ink); text-decoration: none;
+  padding: 2px 0; word-break: break-word;
+}
+.contact-line .icon { font-size: 13px; flex-shrink: 0; width: 18px; }
+.contact-line .link { color: var(--accent); text-decoration: none; font-weight: 500; }
+.contact-line .link:hover { text-decoration: underline; }
+.muted { color: var(--ink-muted); }
+
+.tag-row { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag {
+  font-size: 11px; background: var(--accent-xsoft); color: var(--accent);
+  padding: 2px 8px; border-radius: var(--radius-xs); font-weight: 600;
+  border: 1px solid var(--accent-soft);
+}
+
+.notes-block {
+  font-size: 12px; color: var(--ink-soft); background: #fafaf7;
+  border-left: 2px solid var(--sun); padding: 7px 10px;
+  border-radius: var(--radius-xs); white-space: pre-wrap; word-break: break-word;
+  line-height: 1.55;
+}
+.notes-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.9px;
+  color: var(--ink-muted); font-weight: 700; margin-bottom: 3px;
+}
+
+.history { border-top: 1px solid var(--border-light); padding-top: 10px; }
+.history summary {
+  font-size: 11px; font-weight: 700; color: var(--ink-muted);
+  cursor: pointer; text-transform: uppercase; letter-spacing: 0.8px;
+  outline: none; user-select: none;
+}
+.history summary::-webkit-details-marker { display: none; }
+.history summary::before { content: '▸ '; display: inline-block; }
+.history[open] summary::before { content: '▾ '; }
+.history-list { margin-top: 8px; display: flex; flex-direction: column; gap: 0; }
+.history-item {
+  display: flex; justify-content: space-between;
+  font-size: 12px; padding: 5px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.history-item:last-child { border-bottom: none; }
+.history-item .h-date { color: var(--ink-muted); font-variant-numeric: tabular-nums; flex-shrink: 0; font-weight: 500; }
+.history-item .h-svc { flex: 1; padding: 0 8px; word-break: break-word; color: var(--ink-soft); }
+.history-item .h-paid { color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.scheduled-list { font-size: 12px; }
+.scheduled-list .sj-item {
+  display: flex; gap: 8px; padding: 5px 0;
+  border-bottom: 1px solid var(--border-light); align-items: center;
+}
+.scheduled-list .sj-item:last-child { border-bottom: none; }
+.sj-date { color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; min-width: 60px; }
+.sj-svc { flex: 1; color: var(--ink-soft); }
+.sj-del {
+  background: none; border: none; color: var(--ink-muted);
+  cursor: pointer; padding: 0 4px; font-size: 16px; line-height: 1;
+  border-radius: 4px; transition: color 0.15s;
+}
+.sj-del:hover { color: var(--danger); }
+
+.action-row {
+  display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+  border-top: 1px solid var(--border-light); padding-top: 12px; margin-top: auto;
+}
+.status-select {
+  flex: 1; min-width: 110px; padding: 7px 9px;
+  border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: white; font-size: 12px; font-family: inherit; cursor: pointer;
+  font-weight: 500; outline: none;
+}
+.status-select.s-todo    { background: #fff8f5; border-color: #f9cdb2; color: #8c300b; }
+.status-select.s-reached { background: #f0f6ff; border-color: #bfdbfe; color: #1e40af; }
+.status-select.s-booked  { background: #f0fdf6; border-color: var(--accent-soft); color: var(--rep-fg); }
+.status-select.s-done    { background: #f9fafb; border-color: #e5e7eb; color: #6b7280; }
+.status-select.s-skip    { background: #fafafa; border-color: #e5e7eb; color: #adb5ad; }
+
+.last-contact { font-size: 11px; color: var(--ink-muted); text-align: right; font-style: italic; }
+.last-contact.urgent { color: var(--warm); font-weight: 600; font-style: normal; }
+
+.user-notes-input {
+  width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 7px 10px; font-size: 12px; font-family: inherit;
+  resize: vertical; min-height: 34px; background: var(--bg);
+  transition: border-color 0.15s, box-shadow 0.15s; color: var(--ink);
+}
+.user-notes-input:focus {
+  outline: none; border-color: var(--accent); background: white;
+  box-shadow: 0 0 0 3px rgba(26,94,58,0.08);
+}
+.user-notes-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.9px;
+  color: var(--accent); font-weight: 700; margin-bottom: 3px;
+}
+
+.empty { text-align: center; padding: 60px 20px; color: var(--ink-muted); }
+.empty .em { font-size: 40px; margin-bottom: 10px; }
+
+footer {
+  text-align: center; margin-top: 48px; font-size: 12px;
+  color: var(--ink-muted); font-weight: 500;
+}
+
+/* CALENDAR */
+.cal-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px; flex-wrap: wrap; padding-top: 4px;
+}
+.cal-header h2 { margin: 0; font-size: 19px; font-weight: 700; flex: 1; letter-spacing: -0.3px; }
+.cal-nav button {
+  background: white; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 7px 13px;
+  font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer;
+  color: var(--ink-soft); transition: all 0.15s;
+}
+.cal-nav button:hover { border-color: var(--accent-soft); color: var(--accent); background: var(--accent-xsoft); }
+.cal-nav { display: flex; gap: 6px; }
+
+.calendar {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-xs);
+}
+.cal-weekdays {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  background: var(--bg); border-bottom: 1px solid var(--border);
+}
+.cal-weekdays div {
+  padding: 9px 4px; text-align: center;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.9px;
+  color: var(--ink-muted); font-weight: 700;
+}
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.cal-day {
+  min-height: 88px; border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border); padding: 7px 6px;
+  cursor: pointer; transition: background 0.1s;
+  display: flex; flex-direction: column; position: relative;
+}
+.cal-day:nth-child(7n) { border-right: none; }
+.cal-day:hover { background: var(--accent-xsoft); }
+.cal-day.other-month { color: var(--ink-muted); background: #f9f8f6; }
+.cal-day.today { background: var(--sun-soft); }
+.cal-day.today .day-num { color: var(--sun); font-weight: 700; }
+.cal-day .day-num { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+.cal-day .day-jobs { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.day-job {
+  background: var(--accent); color: white;
+  font-size: 10px; padding: 2px 6px; border-radius: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: pointer; font-weight: 500;
+}
+.day-job:hover { background: var(--accent-light); }
+.day-job.family { background: var(--warm); }
+.day-job.onetimer { background: #7a4a0a; }
+.day-more { font-size: 10px; color: var(--ink-muted); padding: 1px 4px; }
+
+.upcoming {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px; margin-top: 14px;
+  box-shadow: var(--shadow-xs);
+}
+.upcoming h3 { margin: 0 0 14px; font-size: 14px; font-weight: 700; letter-spacing: -0.1px; }
+.upcoming-item {
+  display: flex; gap: 12px; padding: 10px 0;
+  border-bottom: 1px solid var(--border-light); align-items: center;
+}
+.upcoming-item:last-child { border-bottom: none; }
+.upcoming-date {
+  background: var(--accent-xsoft); color: var(--accent);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--radius-sm); padding: 6px 10px;
+  text-align: center; min-width: 50px;
+  display: flex; flex-direction: column;
+}
+.upcoming-date .d-day { font-size: 17px; font-weight: 700; line-height: 1; letter-spacing: -0.5px; }
+.upcoming-date .d-month { font-size: 9px; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; }
+.upcoming-body { flex: 1; min-width: 0; }
+.upcoming-body .u-client { font-weight: 600; font-size: 13px; }
+.upcoming-body .u-svc { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+
+/* MODAL */
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(8,18,10,0.52);
+  display: none; align-items: center; justify-content: center;
+  padding: 16px; z-index: 100;
+  backdrop-filter: blur(3px);
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: white; border-radius: var(--radius-lg);
+  max-width: 480px; width: 100%; max-height: 90vh;
+  overflow-y: auto; padding: 26px;
+  box-shadow: var(--shadow-lg);
+}
+.modal h2 { margin: 0 0 18px; font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+.modal-row { margin-bottom: 12px; }
+.modal-row label {
+  display: block; font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.9px; color: var(--ink-muted);
+  font-weight: 700; margin-bottom: 5px;
+}
+.modal-row input, .modal-row select, .modal-row textarea {
+  width: 100%; padding: 9px 12px; font-size: 14px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-family: inherit; background: white; outline: none; color: var(--ink);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.modal-row input:focus, .modal-row select:focus, .modal-row textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26,94,58,0.09);
+}
+.modal-row textarea { resize: vertical; min-height: 60px; }
+.modal-row.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap; }
+.modal-actions .left { margin-right: auto; }
+.modal small.hint { font-size: 11px; color: var(--ink-muted); display: block; margin-top: 6px; font-style: italic; }
+
+/* STATS */
+.stat-tiles {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px; margin-bottom: 16px;
+}
+.stat-tile {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow-xs);
+}
+.stat-tile .num { font-size: 24px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; line-height: 1.1; }
+.stat-tile .label { font-size: 10px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.9px; font-weight: 700; margin-top: 4px; }
+.stat-tile .sub { font-size: 12px; color: var(--ink-muted); margin-top: 3px; }
+
+.charts-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 12px;
+}
+.chart-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow-xs);
+}
+.chart-card h3 { margin: 0 0 14px; font-size: 13px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.bar-row {
+  display: grid; grid-template-columns: 130px 1fr 70px;
+  gap: 10px; align-items: center; padding: 5px 0;
+  font-size: 13px;
+}
+.bar-row .b-label { color: var(--ink); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-row .b-track {
+  background: var(--bg); border-radius: 999px;
+  height: 7px; position: relative; overflow: hidden;
+}
+.bar-row .b-fill {
+  background: var(--accent);
+  height: 100%; border-radius: 999px;
+  transition: width 0.4s ease;
+  opacity: 0.85;
+}
+.bar-row .b-fill.warm { background: var(--warm); }
+.bar-row .b-val { text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; font-size: 12px; }
+
+.monthly-chart {
+  display: flex; gap: 3px; align-items: flex-end;
+  height: 180px; padding: 0 2px;
+  border-bottom: 1px solid var(--border-light);
+}
+.monthly-bar {
+  flex: 1; min-width: 0; display: flex; flex-direction: column;
+  align-items: stretch; justify-content: flex-end; position: relative;
+}
+.monthly-bar .mb-fill {
+  background: var(--accent);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.4s ease;
+  min-height: 2px; cursor: pointer; opacity: 0.8;
+}
+.monthly-bar:hover .mb-fill { opacity: 1; background: var(--accent-light); }
+.monthly-bar .mb-val {
+  position: absolute; bottom: 100%; left: 50%;
+  transform: translateX(-50%) translateY(-3px);
+  font-size: 9px; color: var(--ink-muted); white-space: nowrap;
+  font-variant-numeric: tabular-nums; font-weight: 600;
+}
+.monthly-labels {
+  display: flex; gap: 3px; padding: 6px 2px 0;
+}
+.monthly-labels div {
+  flex: 1; min-width: 0; font-size: 9px;
+  color: var(--ink-muted); text-align: center;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  transform: rotate(-45deg) translateY(6px);
+  transform-origin: top center; font-weight: 500;
+}
+.empty-chart {
+  text-align: center; padding: 40px 20px; color: var(--ink-muted);
+  font-size: 13px; font-style: italic;
+}
+
+/* OUTREACH */
+.outreach-list-wrap { display: flex; flex-direction: column; gap: 8px; }
+.outreach-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px;
+  box-shadow: var(--shadow-xs); display: flex; gap: 12px; align-items: flex-start;
+  transition: box-shadow 0.2s;
+}
+.outreach-card:hover { box-shadow: var(--shadow-sm); }
+.outreach-card.done { opacity: 0.55; }
+.outreach-icon {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 17px;
+}
+.outreach-icon.nextdoor { background: #e0f0ff; }
+.outreach-icon.carddrop { background: var(--accent-xsoft); }
+.outreach-icon.wordofmouth { background: var(--warm-soft); }
+.outreach-body { flex: 1; min-width: 0; }
+.outreach-meta {
+  font-size: 11px; color: var(--ink-muted); margin-bottom: 3px;
+  display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+}
+.outreach-meta .overdue { color: var(--warm); font-weight: 700; }
+.outreach-meta .done-tag { color: var(--accent); font-weight: 700; }
+.outreach-detail { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+.outreach-actions { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+.outreach-section { font-size: 11px; text-transform: uppercase; letter-spacing: 0.9px; color: var(--ink-muted); font-weight: 700; padding: 14px 2px 6px; }
+#outreach-map {
+  height: 380px; border-radius: var(--radius); border: 1px solid var(--border);
+  box-shadow: var(--shadow-xs); margin-bottom: 16px; z-index: 1;
+}
+.map-legend {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  font-size: 12px; color: var(--ink-soft); margin-bottom: 12px; padding: 0 2px;
+}
+.map-legend span { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.legend-dot.client { background: #1a5e3a; }
+.legend-dot.drop { background: #1d6fa8; }
+#map-tap-hint {
+  text-align: center; font-size: 12px; color: var(--ink-muted);
+  padding: 8px; background: var(--sun-soft); border-radius: var(--radius-sm);
+  margin-bottom: 10px; display: none; font-style: italic;
+}
+.radius-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.radius-btn {
+  padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border);
+  background: white; font-size: 12px; cursor: pointer; font-family: inherit;
+  color: var(--ink-soft); font-weight: 500; transition: all 0.15s;
+}
+.radius-btn.active { background: #1d6fa8; color: white; border-color: #1d6fa8; }
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  header { padding: 20px 16px; }
+  header h1 { font-size: 20px; }
+  .container { padding: 0 12px 80px; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .stat .num { font-size: 18px; }
+  .cards { grid-template-columns: 1fr; gap: 10px; }
+  .cal-day { min-height: 60px; padding: 4px; }
+  .cal-day .day-num { font-size: 11px; }
+  .day-job { font-size: 10px; padding: 1px 4px; }
+  .tab-btn { margin-right: 12px; font-size: 13px; }
+  .tabs { padding: 0 12px; }
+  .controls { padding: 12px; margin: 12px 0 10px; }
+}
+
+@media print {
+  header { background: #172b1e; color: white; }
+  .controls, .action-row, footer, .tabs, .save-indicator { display: none; }
+  .card { page-break-inside: avoid; box-shadow: none; }
+  .history[open] summary::before, .history summary::before { display: none; }
+  .history { display: block; }
+  .history-list { display: flex !important; }
+}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#172b1e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Clients">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="save-indicator" id="save-ind"></div>
+    <h1>Summer 2026 Client Directory</h1>
+    <div class="sub">Outreach, scheduling &amp; stats for a seasonal field-service business · <strong>Demo: all clients are fictional</strong></div>
+    <div class="stats" id="stats"></div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tabs-inner">
+    <button class="tab-btn active" data-tab="directory">📋 Directory</button>
+    <button class="tab-btn" data-tab="schedule">📅 Schedule</button>
+    <button class="tab-btn" data-tab="outreach">📣 Outreach</button>
+    <button class="tab-btn" data-tab="stats">📊 Stats</button>
+    <span class="spacer"></span>
+    <button class="icon-btn" id="btn-refresh" title="Refresh from Airtable">↻</button>
+    <button class="icon-btn" id="btn-export" title="Export backup">⬇</button>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- ===== DIRECTORY VIEW ===== -->
+  <div class="view active" id="view-directory">
+    <div class="controls">
+      <div class="controls-top">
+        <input id="search" type="search" placeholder="Search name, address, service, or notes...">
+        <button class="btn" id="btn-add-client">+ New client</button>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Show</span>
+        <button class="chip active" data-filter="priority">Priority outreach</button>
+        <button class="chip" data-filter="all">All</button>
+        <button class="chip" data-filter="repeater">Repeaters</button>
+        <button class="chip" data-filter="family">Friends &amp; Family</button>
+        <button class="chip" data-filter="onetimer">One-timers</button>
+        <span class="divider"></span>
+        <span class="filter-label">Status</span>
+        <button class="chip active" data-status="any">Any</button>
+        <button class="chip" data-status="todo">To contact</button>
+        <button class="chip" data-status="reached">Reached out</button>
+        <button class="chip" data-status="booked">Booked</button>
+        <button class="chip" data-status="done">Done</button>
+        <span class="divider"></span>
+        <span class="filter-label">Sort</span>
+        <select class="sort" id="sort">
+          <option value="default">Priority + name</option>
+          <option value="lastcontact">Last reached out (oldest first)</option>
+          <option value="revenue">Lifetime revenue (high → low)</option>
+          <option value="visits">Visit count (high → low)</option>
+          <option value="name">Name (A → Z)</option>
+        </select>
+      </div>
+    </div>
+    <div class="results-meta" id="meta"></div>
+    <div class="cards" id="cards"></div>
+  </div>
+
+  <!-- ===== SCHEDULE VIEW ===== -->
+  <div class="view" id="view-schedule">
+    <div class="cal-header">
+      <h2 id="cal-title">Month</h2>
+      <div class="cal-nav">
+        <button id="cal-prev">‹ Prev</button>
+        <button id="cal-today">Today</button>
+        <button id="cal-next">Next ›</button>
+      </div>
+    </div>
+    <div class="calendar">
+      <div class="cal-weekdays">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
+        <div>Thu</div><div>Fri</div><div>Sat</div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+    <div class="upcoming">
+      <h3>Upcoming jobs</h3>
+      <div id="upcoming-list"></div>
+    </div>
+    <div class="upcoming">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <h3 id="past-heading" style="margin:0">Past jobs — log your actuals</h3>
+        <button class="btn small" id="btn-log-job">+ Log job</button>
+      </div>
+      <div id="past-list"></div>
+    </div>
+  </div>
+
+  <!-- ===== OUTREACH VIEW ===== -->
+  <div class="view" id="view-outreach">
+    <div id="outreach-map"></div>
+    <div class="map-legend">
+      <span><span class="legend-dot client"></span> Client</span>
+      <span><span class="legend-dot drop"></span> Card drop zone</span>
+    </div>
+    <div class="controls">
+      <div class="controls-top">
+        <div class="filter-row" style="flex:1">
+          <span class="filter-label">Type</span>
+          <button class="chip active" data-otype="all">All</button>
+          <button class="chip" data-otype="nextdoor">📣 Nextdoor</button>
+          <button class="chip" data-otype="carddrop">🚪 Card drops</button>
+          <span class="divider"></span>
+          <button class="chip active" data-ostatus="open">Upcoming</button>
+          <button class="chip" data-ostatus="done">Done</button>
+          <button class="chip" data-ostatus="all">All</button>
+        </div>
+        <button class="btn" id="btn-add-outreach">+ Add</button>
+      </div>
+    </div>
+    <div id="outreach-items"></div>
+  </div>
+
+  <!-- ===== STATS VIEW ===== -->
+  <div class="view" id="view-stats">
+    <div class="cal-header">
+      <h2 style="flex:0 0 auto">Stats &amp; Analytics</h2>
+      <select id="stats-year" class="sort" style="margin-left:auto">
+        <option value="all">All time</option>
+      </select>
+    </div>
+    <div class="stat-tiles" id="stat-tiles"></div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Revenue by month</h3>
+        <div id="chart-monthly"></div>
+      </div>
+      <div class="chart-card">
+        <h3>Revenue by service</h3>
+        <div id="chart-services"></div>
+      </div>
+      <div class="chart-card">
+        <h3>$ per hour by service</h3>
+        <div id="chart-hourly"></div>
+      </div>
+      <div class="chart-card">
+        <h3>Top clients by revenue</h3>
+        <div id="chart-clients"></div>
+      </div>
+    </div>
+    <div class="chart-card" style="margin-top:16px">
+      <h3>Year-over-year comparison</h3>
+      <div id="chart-yoy"></div>
+    </div>
+  </div>
+
+  <footer>
+    Demo mode: sample data lives in memory and resets on reload. The live version syncs to Airtable.
+  </footer>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+const geocodeCacheSeed = {};
+// ===== DATA LAYER (DEMO) =====
+// The production app syncs to Airtable through its REST API. This public demo swaps in an
+// in-memory store with the same request/response shape, filled with generated sample data.
+// Every client, address, and phone number below is fictional.
+const AT_CLIENTS  = 'clients';
+const AT_JOBS     = 'jobs';
+const AT_OUTREACH = 'outreach';
+
+const DEMO_DB = (() => {
+  let seed = 20260523;
+  const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const pick = a => a[Math.floor(rnd() * a.length)];
+  const iso = d => d.toISOString().slice(0, 10);
+  let n = 0; const rec = fields => ({ id: 'rec' + String(++n).padStart(6, '0'), createdTime: new Date().toISOString(), fields });
+
+  const first = ['Alex','Jordan','Taylor','Morgan','Casey','Riley','Jamie','Avery','Quinn','Parker','Drew','Reese','Cameron','Skyler','Rowan','Emerson','Harper','Logan','Sage','Blake','Dana','Elliot','Frankie','Hayden','Jesse','Kendall','Lane','Marley','Noel','Peyton','Robin','Shawn','Toby','Val','Wren','Sam','Charlie','Devon','Kai','Lee'];
+  const last  = ['Adams','Brooks','Carter','Diaz','Ellis','Foster','Grant','Hayes','Irwin','Jensen','Keller','Lopez','Moreno','Nolan','Owens','Price','Quinn','Reyes','Stone','Turner','Vance','Walsh','Young','Zimmer'];
+  const streets = ['Maple Ridge Dr','Cedar Hollow Ln','Fernwood Ct','Oak Terrace Way','Willow Bend Rd','Hazel Glen Dr','Birch Meadow Ct','Aspen Crest Ln','Juniper Loop','Alder Park Way'];
+  const hoods = [['Maple Ridge',45.305,-122.765],['Cedar Hollow',45.318,-122.745],['Fernwood',45.292,-122.790],['Oak Terrace',45.330,-122.770],['Willow Bend',45.370,-122.640]];
+  const svc = [['Blackberry removal',110,[3,9]],['Pressure washing',95,[1,3]],['Junk removal',85,[1,4]],['Dump run',80,[1,2]],['Yard work',70,[2,6]]];
+
+  const clients = [], jobs = [], outreach = [];
+  const cats = ['repeater','repeater','repeater','repeater','onetimer','onetimer','family'];
+  const statuses = ['todo','todo','reached','booked','done','skip'];
+  for (let i = 0; i < 40; i++) {
+    const name = first[i % first.length] + ' ' + pick(last);
+    const [hood, lat, lng] = pick(hoods);
+    const address = (100 + Math.floor(rnd() * 9800)) + ' ' + pick(streets) + ' (demo)';
+    geocodeCacheSeed[address + ', Portland OR'] = { lat: +(lat + (rnd() - .5) * .02).toFixed(3), lng: +(lng + (rnd() - .5) * .02).toFixed(3) };
+    const main = pick(svc), cat = pick(cats);
+    const visits = cat === 'repeater' ? 1 + Math.floor(rnd() * 4) : 1;
+    let last_contacted = '';
+    for (let v = 0; v < visits; v++) {
+      const [service, rate, [lo, hi]] = v === 0 ? main : pick(svc);
+      const year = pick([2024, 2025, 2025, 2026]);
+      const d = new Date(year, 4 + Math.floor(rnd() * 4), 1 + Math.floor(rnd() * 28));
+      const hours = Math.round((lo + rnd() * (hi - lo)) * 2) / 2;
+      const paid = Math.round(hours * rate * (0.8 + rnd() * 0.4) / 5) * 5;
+      jobs.push(rec({ 'Client Name': name, 'Date': iso(d), 'Service': service, 'Paid': paid, 'Hours': hours, 'Notes': '', 'Scheduled': false }));
+      if (iso(d) > last_contacted) last_contacted = iso(d);
+    }
+    clients.push(rec({ 'Name': name, 'Address': address, 'Phone': '(555) 555-01' + String(i).padStart(2, '0'),
+      'Services': main[0], 'Category': cat, 'Notes': hood + ' neighborhood', 'Last Contacted': last_contacted,
+      'App Status': pick(statuses), 'User Notes': '' }));
+  }
+  const today = new Date();
+  for (let k = 1; k <= 6; k++) {
+    const c = clients[Math.floor(rnd() * clients.length)].fields, [service, rate] = pick(svc);
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + k * 3);
+    jobs.push(rec({ 'Client Name': c['Name'], 'Date': iso(d), 'Service': service, 'Paid': rate * 3, 'Hours': 3, 'Notes': 'Quoted', 'Scheduled': true, 'Time': pick(['9:00 AM','1:00 PM','3:30 PM']) }));
+  }
+  for (const [hood, lat, lng] of hoods) {
+    outreach.push(rec({ 'Type': 'carddrop', 'Date': iso(new Date(2026, 4, 5 + Math.floor(rnd() * 40))), 'Status': 'done', 'Neighborhood': hood,
+      'Houses': 40 + Math.floor(rnd() * 80), 'Lat': lat, 'Lng': lng, 'Radius': 300 + Math.floor(rnd() * 300), 'Title': 'Card drop — ' + hood }));
+  }
+  for (let k = 0; k < 4; k++) outreach.push(rec({ 'Type': 'nextdoor', 'Date': iso(new Date(2026, 4, 10 + k * 12)), 'Status': k < 3 ? 'done' : 'planned',
+    'Content': 'Booking blackberry removal and pressure washing for the season. Reply or DM for a free quote.', 'Title': 'Nextdoor post' }));
+  return { clients, jobs, outreach };
+})();
+
+async function atFetch(method, path, body) {
+  const [table, id] = path.split('?')[0].split('/');
+  const rows = DEMO_DB[table];
+  if (!rows) throw new Error('Unknown table ' + table);
+  const clone = r => JSON.parse(JSON.stringify(r));
+  if (method === 'GET') return { records: rows.map(clone) };
+  if (method === 'POST') {
+    const out = body.records.map(r => ({ id: 'rec' + Math.random().toString(36).slice(2, 10), createdTime: new Date().toISOString(), fields: { ...r.fields } }));
+    rows.push(...out); return { records: out.map(clone) };
+  }
+  const i = rows.findIndex(r => r.id === id);
+  if (i === -1) throw new Error('Record not found');
+  if (method === 'PATCH') { Object.assign(rows[i].fields, body.fields); return clone(rows[i]); }
+  if (method === 'DELETE') { rows.splice(i, 1); return {}; }
+}
+
+let clients = [], jobs = [], outreach = [];
+
+async function fetchAll(table) {
+  let records = [], offset;
+  do {
+    const url = table + (offset ? `?offset=${offset}` : '');
+    const d = await atFetch('GET', url);
+    records = records.concat(d.records || []);
+    offset = d.offset;
+  } while (offset);
+  return records;
+}
+
+function mapClient(rec) {
+  const f = rec.fields;
+  return {
+    airtableId: rec.id,
+    name: f['Name'] || '',
+    address: f['Address'] || '',
+    phone: f['Phone'] || '',
+    services: f['Services'] || '',
+    category: f['Category'] || 'onetimer',
+    notes: f['Notes'] || '',
+    last_contacted: f['Last Contacted'] || '',
+    status: f['App Status'] || 'todo',
+    userNotes: f['User Notes'] || '',
+  };
+}
+
+function mapJob(rec) {
+  const f = rec.fields;
+  return {
+    airtableId: rec.id,
+    id: rec.id,
+    clientName: f['Client Name'] || '',
+    date: f['Date'] || '',
+    service: f['Service'] || '',
+    paid: f['Paid'] || 0,
+    price: f['Paid'] || 0,
+    hours: f['Hours'] || 0,
+    notes: f['Notes'] || '',
+    scheduled: !!f['Scheduled'],
+    time: f['Time'] || '',
+  };
+}
+
+function mapOutreach(rec) {
+  const f = rec.fields;
+  return {
+    airtableId: rec.id,
+    type: f['Type'] || 'nextdoor',
+    date: f['Date'] || '',
+    status: f['Status'] || 'planned',
+    content: f['Content'] || '',
+    neighborhood: f['Neighborhood'] || '',
+    houses: f['Houses'] || 0,
+    clientName: f['Client Name'] || '',
+    notes: f['Notes'] || '',
+    lat: f['Lat'] || null,
+    lng: f['Lng'] || null,
+    radius: f['Radius'] || 300,
+  };
+}
+
+async function loadAll() {
+  document.getElementById('cards').innerHTML = '<div class="empty"><div class="em">⏳</div>Loading your clients…</div>';
+  try {
+    const [cr, jr, or2] = await Promise.all([fetchAll(AT_CLIENTS), fetchAll(AT_JOBS), fetchAll(AT_OUTREACH)]);
+    clients = cr.map(mapClient);
+    jobs = jr.map(mapJob);
+    outreach = or2.map(mapOutreach);
+    renderAll();
+  } catch(e) {
+    document.getElementById('cards').innerHTML = `<div class="empty"><div class="em">⚠️</div>Failed to load: ${e.message}</div>`;
+  }
+}
+
+// ===== SAVE INDICATOR =====
+let savedTimeout;
+function showInd(text, cls) {
+  const el = document.getElementById('save-ind');
+  el.textContent = text;
+  el.className = 'save-indicator visible ' + cls;
+}
+function hideInd() { document.getElementById('save-ind').classList.remove('visible'); }
+
+async function patchClient(id, fields) {
+  showInd('Saving…', 'saving');
+  try {
+    const d = await atFetch('PATCH', `${AT_CLIENTS}/${id}`, { fields });
+    const idx = clients.findIndex(c => c.airtableId === id);
+    if (idx !== -1) clients[idx] = { ...clients[idx], ...mapClient(d) };
+    showInd('Saved ✓', 'saved');
+    clearTimeout(savedTimeout);
+    savedTimeout = setTimeout(hideInd, 1500);
+  } catch(e) { showInd('Save failed!', 'saving'); }
+}
+
+async function postClient(fields) {
+  const d = await atFetch('POST', AT_CLIENTS, { records: [{ fields }] });
+  return mapClient(d.records[0]);
+}
+
+async function deleteClientRecord(id) {
+  await atFetch('DELETE', `${AT_CLIENTS}/${id}`);
+}
+
+async function postJob(fields) {
+  const d = await atFetch('POST', AT_JOBS, { records: [{ fields }] });
+  return mapJob(d.records[0]);
+}
+
+async function patchJob(id, fields) {
+  showInd('Saving…', 'saving');
+  try {
+    await atFetch('PATCH', `${AT_JOBS}/${id}`, { fields });
+    const idx = jobs.findIndex(j => j.airtableId === id);
+    if (idx !== -1) Object.assign(jobs[idx], mapJob({ id, fields: { ...jobs[idx], ...fields } }));
+    showInd('Saved ✓', 'saved');
+    clearTimeout(savedTimeout);
+    savedTimeout = setTimeout(hideInd, 1500);
+  } catch(e) { showInd('Save failed!', 'saving'); }
+}
+
+async function deleteJobRecord(id) {
+  await atFetch('DELETE', `${AT_JOBS}/${id}`);
+}
+
+// ===== CONSTANTS =====
+const STATUS_OPTIONS = [
+  ['todo',    'To contact',  's-todo'],
+  ['reached', 'Reached out', 's-reached'],
+  ['booked',  'Booked',      's-booked'],
+  ['done',    'Done',        's-done'],
+  ['skip',    'Skip',        's-skip'],
+];
+const STATUS_CLASS = Object.fromEntries(STATUS_OPTIONS.map(s => [s[0], s[2]]));
+
+const COMMON_SERVICES = [
+  'Blackberry removal', 'Pressure washing', 'Junk removal', 'Dump run', 'Yard work', 'Other',
+];
+
+// ===== DATA ACCESS =====
+function getClient(name) { return clients.find(c => c.name === name); }
+function scheduledJobsList() { return jobs.filter(j => j.scheduled); }
+function clientHistory(name) {
+  const today = todayISO();
+  return jobs
+    .filter(j => j.clientName === name && (!j.scheduled || j.date < today))
+    .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+}
+
+// ===== HELPERS =====
+function fmtMoney(n) { return '$' + (n || 0).toLocaleString('en-US'); }
+function mapHref(addr) { return addr ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(addr) : null; }
+function telHref(phone) { const d = (phone||'').replace(/\D/g,''); return d.length>=10 ? 'tel:+1'+d.slice(-10) : null; }
+function smsHref(phone) { const d = (phone||'').replace(/\D/g,''); return d.length>=10 ? 'sms:+1'+d.slice(-10) : null; }
+function daysSince(s) { if (!s) return null; const d=new Date(s); return isNaN(d)?null:Math.floor((Date.now()-d)/86400000); }
+function lastContactText(c) {
+  const date = c.last_contacted;
+  if (!date) return { text: 'Never reached out', urgent: true };
+  const days = daysSince(date);
+  if (days === null) return { text: 'Last contacted: ' + date, urgent: false };
+  if (days < 7)   return { text: 'Reached out ' + days + 'd ago', urgent: false };
+  if (days < 30)  return { text: 'Reached out ' + Math.floor(days/7) + 'w ago', urgent: false };
+  if (days < 365) return { text: 'Reached out ' + Math.floor(days/30) + 'mo ago', urgent: days > 180 };
+  return { text: 'Reached out ' + Math.floor(days/365) + 'y ago', urgent: true };
+}
+function escapeHTML(s) {
+  return (s||'').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+}
+function todayISO() {
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function formatPhone(s) {
+  const d = (s||'').replace(/\D/g,'');
+  if (d.length === 10) return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6,10)}`;
+  if (d.length === 11 && d[0]==='1') return `(${d.slice(1,4)}) ${d.slice(4,7)}-${d.slice(7,11)}`;
+  return s;
+}
+
+// ===== TABS =====
+document.querySelectorAll('.tab-btn').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('view-' + b.dataset.tab).classList.add('active');
+    if (b.dataset.tab === 'schedule') renderCalendar();
+    if (b.dataset.tab === 'outreach') renderOutreachView();
+  };
+});
+
+// ===== DIRECTORY FILTERS =====
+let activeFilter = 'priority', activeStatus = 'any', sortMode = 'default', searchQuery = '';
+document.querySelectorAll('[data-filter]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('[data-filter]').forEach(x => x.classList.remove('active'));
+  b.classList.add('active'); activeFilter = b.dataset.filter; renderDirectory();
+});
+document.querySelectorAll('[data-status]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('[data-status]').forEach(x => x.classList.remove('active'));
+  b.classList.add('active'); activeStatus = b.dataset.status; renderDirectory();
+});
+document.getElementById('search').oninput = e => { searchQuery = e.target.value.toLowerCase(); renderDirectory(); };
+document.getElementById('sort').onchange = e => { sortMode = e.target.value; renderDirectory(); };
+
+// ===== STATS HEADER =====
+function renderStats() {
+  const today = todayISO();
+  const repeaters = clients.filter(c => c.category==='repeater').length;
+  const family = clients.filter(c => c.category==='family').length;
+  const upcoming = scheduledJobsList().filter(j => j.date > today).length;
+  const earnedSeason = jobs.filter(j => !j.scheduled || j.date < today).reduce((s,j) => s+(j.paid||0), 0);
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="num">${clients.length}</div><div class="label">Total Clients</div></div>
+    <div class="stat"><div class="num">${repeaters + family}</div><div class="label">Priority Leads</div></div>
+    <div class="stat"><div class="num">${upcoming}</div><div class="label">Upcoming Jobs</div></div>
+    <div class="stat"><div class="num">${fmtMoney(earnedSeason)}</div><div class="label">Earned This Season</div></div>
+  `;
+}
+
+// ===== DIRECTORY RENDER =====
+function renderDirectory() {
+  let list = clients.slice();
+  if (activeFilter === 'priority') list = list.filter(c => c.category==='repeater'||c.category==='family');
+  else if (activeFilter !== 'all') list = list.filter(c => c.category===activeFilter);
+  if (activeStatus !== 'any') list = list.filter(c => c.status === activeStatus);
+  if (searchQuery) {
+    list = list.filter(c => {
+      const h = [c.name,c.address,c.services,c.notes,c.userNotes].filter(Boolean).join(' ').toLowerCase();
+      return h.includes(searchQuery);
+    });
+  }
+  const pri = {'repeater':0,'family':1,'onetimer':2};
+  const sorters = {
+    default: (a,b) => pri[a.category]-pri[b.category] || a.name.localeCompare(b.name),
+    lastcontact: (a,b) => (a.last_contacted||'').localeCompare(b.last_contacted||'') || a.name.localeCompare(b.name),
+    revenue: (a,b) => {
+      const ra = clientHistory(a.name).reduce((s,j)=>s+(j.paid||0),0);
+      const rb = clientHistory(b.name).reduce((s,j)=>s+(j.paid||0),0);
+      return rb - ra;
+    },
+    visits: (a,b) => clientHistory(b.name).length - clientHistory(a.name).length,
+    name: (a,b) => a.name.localeCompare(b.name),
+  };
+  list.sort(sorters[sortMode]);
+  document.getElementById('meta').textContent = `Showing ${list.length} of ${clients.length} clients`;
+  const container = document.getElementById('cards');
+  if (list.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="em">🌿</div>No clients match your filters.</div>';
+    return;
+  }
+  container.innerHTML = list.map(renderCard).join('');
+  attachCardHandlers();
+}
+
+function renderCard(c) {
+  const tel = telHref(c.phone), sms = smsHref(c.phone), map = mapHref(c.address);
+  const lc = lastContactText(c);
+  const badgeText = c.category==='repeater'?'Repeater':c.category==='family'?'Family/Friend':'One-timer';
+  const services = (c.services||'').split(/[,\/]/).map(x=>x.trim()).filter(Boolean);
+  const history = clientHistory(c.name);
+  const totalRev = history.reduce((s,j)=>s+(j.paid||0),0);
+  const scheduledForClient = scheduledJobsList()
+    .filter(j => j.clientName===c.name && j.date >= todayISO())
+    .sort((a,b) => a.date.localeCompare(b.date));
+
+  const historyHTML = history.length ? `
+    <details class="history">
+      <summary>Job history (${history.length} visit${history.length===1?'':'s'} · ${fmtMoney(totalRev)} lifetime)</summary>
+      <div class="history-list">
+        ${history.map(h => `
+          <div class="history-item">
+            <span class="h-date">${escapeHTML(h.date)}</span>
+            <span class="h-svc">${escapeHTML(h.service)}${h.notes?' — '+escapeHTML(h.notes):''}</span>
+            <span class="h-paid">${h.paid?fmtMoney(h.paid):'—'}</span>
+          </div>`).join('')}
+      </div>
+    </details>` : '';
+
+  const scheduledHTML = scheduledForClient.length ? `
+    <div>
+      <div class="notes-label" style="color:var(--accent)">📅 Scheduled</div>
+      <div class="scheduled-list">
+        ${scheduledForClient.map(j => `
+          <div class="sj-item">
+            <span class="sj-date">${fmtDate(j.date)}${j.time?' '+j.time:''}</span>
+            <span class="sj-svc">${escapeHTML(j.service||'')}</span>
+            <button class="sj-del" data-delete-job="${j.airtableId}" title="Delete">×</button>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  return `
+    <div class="card" data-name="${escapeHTML(c.name)}" data-id="${c.airtableId}">
+      <div class="card-head">
+        <h3>${escapeHTML(c.name)}</h3>
+        <span class="badge ${c.category}">${badgeText}</span>
+      </div>
+      ${tel
+        ? `<div class="contact-line"><span class="icon">📞</span><a class="link" href="${tel}">${escapeHTML(c.phone)}</a>${sms?` &nbsp;·&nbsp; <a class="link" href="${sms}">text</a>`:''}</div>`
+        : `<div class="contact-line muted"><span class="icon">📞</span>No phone on file</div>`}
+      ${map
+        ? `<div class="contact-line"><span class="icon">📍</span><a class="link" href="${map}" target="_blank" rel="noopener">${escapeHTML(c.address)}</a></div>`
+        : `<div class="contact-line muted"><span class="icon">📍</span>${escapeHTML(c.address||'No address')}</div>`}
+      ${services.length?`<div class="tag-row">${services.map(x=>`<span class="tag">${escapeHTML(x)}</span>`).join('')}</div>`:''}
+      ${c.notes && c.notes!=='N/A'?`<div><div class="notes-label">Notes</div><div class="notes-block">${escapeHTML(c.notes)}</div></div>`:''}
+      ${historyHTML}
+      ${scheduledHTML}
+      <div class="last-contact ${lc.urgent?'urgent':''}">${lc.text}</div>
+      <div>
+        <div class="user-notes-label">Your notes</div>
+        <textarea class="user-notes-input" data-action="usernotes" placeholder="Quote sent, callback Tuesday, etc.">${escapeHTML(c.userNotes||'')}</textarea>
+      </div>
+      <div class="action-row">
+        <select class="status-select ${STATUS_CLASS[c.status]||'s-todo'}" data-action="status">
+          ${STATUS_OPTIONS.map(([v,l])=>`<option value="${v}" ${c.status===v?'selected':''}>${l}</option>`).join('')}
+        </select>
+        <button class="btn small secondary" data-action="schedule">📅 Schedule</button>
+        <button class="btn small" data-action="contacted">Contacted</button>
+        <button class="btn small danger" data-action="delete-client">🗑</button>
+      </div>
+    </div>`;
+}
+
+function attachCardHandlers() {
+  document.querySelectorAll('.card').forEach(card => {
+    const name = card.dataset.name;
+    const clientId = card.dataset.id;
+
+    card.querySelector('[data-action="status"]').addEventListener('change', e => {
+      const newStatus = e.target.value;
+      const c = getClient(name);
+      if (c) c.status = newStatus;
+      e.target.className = 'status-select ' + (STATUS_CLASS[newStatus]||'s-todo');
+      patchClient(clientId, {'App Status': newStatus});
+    });
+
+    let noteTimer;
+    card.querySelector('[data-action="usernotes"]').addEventListener('input', e => {
+      const val = e.target.value;
+      const c = getClient(name);
+      if (c) c.userNotes = val;
+      clearTimeout(noteTimer);
+      noteTimer = setTimeout(() => patchClient(clientId, {'User Notes': val}), 800);
+    });
+
+    card.querySelector('[data-action="contacted"]').addEventListener('click', () => {
+      const c = getClient(name);
+      if (!c) return;
+      const today = todayISO();
+      c.last_contacted = today;
+      if (c.status === 'todo') c.status = 'reached';
+      patchClient(clientId, {'Last Contacted': today, 'App Status': c.status});
+      renderDirectory();
+    });
+
+    card.querySelector('[data-action="schedule"]').addEventListener('click', () => openScheduleModal({ clientName: name }));
+
+    card.querySelector('[data-action="delete-client"]').addEventListener('click', () => {
+      if (confirm('Delete "' + name + '" from your directory?')) {
+        clients = clients.filter(c => c.airtableId !== clientId);
+        deleteClientRecord(clientId);
+        renderAll();
+      }
+    });
+
+    card.querySelectorAll('[data-delete-job]').forEach(b => b.addEventListener('click', async e => {
+      e.stopPropagation();
+      const id = b.dataset.deleteJob;
+      jobs = jobs.filter(j => j.airtableId !== id);
+      await deleteJobRecord(id);
+      renderAll();
+    }));
+  });
+}
+
+// ===== CALENDAR =====
+let calCursor = new Date(); calCursor.setDate(1);
+document.getElementById('cal-prev').onclick = () => { calCursor.setMonth(calCursor.getMonth()-1); renderCalendar(); };
+document.getElementById('cal-next').onclick = () => { calCursor.setMonth(calCursor.getMonth()+1); renderCalendar(); };
+document.getElementById('cal-today').onclick = () => { calCursor = new Date(); calCursor.setDate(1); renderCalendar(); };
+
+function renderCalendar() {
+  const y = calCursor.getFullYear(), m = calCursor.getMonth();
+  document.getElementById('cal-title').textContent = calCursor.toLocaleDateString('en-US', {month:'long',year:'numeric'});
+  const firstDow = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const daysInPrev = new Date(y, m, 0).getDate();
+  const today = todayISO();
+  const scheduled = scheduledJobsList();
+  const jobsByDate = {};
+  scheduled.forEach(j => {
+    if (!jobsByDate[j.date]) jobsByDate[j.date] = [];
+    jobsByDate[j.date].push(j);
+  });
+
+  let html = '';
+  const totalCells = Math.ceil((firstDow + daysInMonth) / 7) * 7;
+  for (let i=0; i<totalCells; i++) {
+    let dayNum, monthOffset = 0;
+    if (i < firstDow) { dayNum = daysInPrev - firstDow + i + 1; monthOffset = -1; }
+    else if (i >= firstDow + daysInMonth) { dayNum = i - firstDow - daysInMonth + 1; monthOffset = 1; }
+    else { dayNum = i - firstDow + 1; }
+    const cellDate = new Date(y, m + monthOffset, dayNum);
+    const iso = cellDate.getFullYear()+'-'+String(cellDate.getMonth()+1).padStart(2,'0')+'-'+String(cellDate.getDate()).padStart(2,'0');
+    const dayJobs = jobsByDate[iso] || [];
+    const cls = ['cal-day'];
+    if (monthOffset !== 0) cls.push('other-month');
+    if (iso === today) cls.push('today');
+    const shown = dayJobs.slice(0, 3);
+    const extra = dayJobs.length - shown.length;
+    html += `<div class="${cls.join(' ')}" data-date="${iso}">
+      <div class="day-num">${dayNum}</div>
+      <div class="day-jobs">
+        ${shown.map(j => {
+          const cat = (getClient(j.clientName)||{}).category || 'onetimer';
+          return `<div class="day-job ${cat}" data-job-id="${j.airtableId}" title="${escapeHTML(j.clientName + (j.time?' @ '+j.time:'') + ' — ' + (j.service||''))}">${escapeHTML(j.clientName)}</div>`;
+        }).join('')}
+        ${extra>0?`<div class="day-more">+${extra} more</div>`:''}
+      </div>
+    </div>`;
+  }
+  document.getElementById('cal-grid').innerHTML = html;
+
+  document.querySelectorAll('.cal-day').forEach(d => {
+    d.onclick = e => {
+      if (e.target.closest('.day-job')) return;
+      openScheduleModal({ date: d.dataset.date });
+    };
+  });
+  document.querySelectorAll('.day-job').forEach(j => {
+    j.onclick = e => {
+      e.stopPropagation();
+      const id = j.dataset.jobId;
+      const job = jobs.find(x => x.airtableId === id);
+      if (job) openScheduleModal({ edit: job });
+    };
+  });
+
+  renderUpcoming();
+  renderPast();
+
+  // Wire "+ Log job" button each time calendar renders (button is in the DOM by now)
+  const logBtn = document.getElementById('btn-log-job');
+  if (logBtn) logBtn.onclick = () => openScheduleModal({ date: todayISO(), logMode: true });
+}
+
+function renderUpcoming() {
+  const today = todayISO();
+  const list = scheduledJobsList().filter(j => j.date > today).sort((a,b) => a.date.localeCompare(b.date) || (a.time||'').localeCompare(b.time||''));
+  const container = document.getElementById('upcoming-list');
+  if (list.length === 0) {
+    container.innerHTML = '<div class="empty" style="padding:20px 0"><div class="em">📭</div>No jobs scheduled yet. Click any date to add one.</div>';
+    return;
+  }
+  container.innerHTML = list.slice(0, 12).map(j => {
+    const d = new Date(j.date + 'T00:00:00');
+    return `<div class="upcoming-item">
+      <div class="upcoming-date">
+        <span class="d-day">${d.getDate()}</span>
+        <span class="d-month">${d.toLocaleDateString('en-US',{month:'short'})}</span>
+      </div>
+      <div class="upcoming-body">
+        <div class="u-client">${escapeHTML(j.clientName)}${j.time?' <span style="font-weight:400;color:var(--ink-soft);font-size:13px">@ '+escapeHTML(j.time)+'</span>':''}</div>
+        <div class="u-svc">${escapeHTML(j.service||'')}${j.paid?' · '+fmtMoney(j.paid):''}${j.hours?' · '+j.hours+'h':''}</div>
+      </div>
+      <button class="btn small secondary" data-edit-job="${j.airtableId}">Edit</button>
+    </div>`;
+  }).join('');
+  container.querySelectorAll('[data-edit-job]').forEach(b => b.onclick = () => {
+    const job = jobs.find(x => x.airtableId === b.dataset.editJob);
+    if (job) openScheduleModal({ edit: job });
+  });
+}
+
+function renderPast() {
+  const today = todayISO();
+  const list = scheduledJobsList().filter(j => j.date <= today).sort((a,b) => b.date.localeCompare(a.date));
+  const container = document.getElementById('past-list');
+  const heading = document.getElementById('past-heading');
+  if (list.length === 0) {
+    container.innerHTML = '<div class="empty" style="padding:20px 0"><div class="em">🗓️</div>No past jobs yet.</div>';
+    heading.textContent = 'Past jobs — log your actuals';
+    return;
+  }
+  const needsEntry = list.filter(j => !j.paid || !j.hours).length;
+  const totalEarned = list.reduce((s,j) => s + (j.paid||0), 0);
+  heading.innerHTML = `Past jobs — ${fmtMoney(totalEarned)} earned · ${list.length} job${list.length===1?'':'s'}${needsEntry?` · <span style="color:var(--warm);font-weight:700">${needsEntry} need actuals</span>`:''}`;
+  container.innerHTML = list.slice(0, 30).map(j => {
+    const d = new Date(j.date + 'T00:00:00');
+    const missing = !j.paid || !j.hours;
+    return `<div class="upcoming-item">
+      <div class="upcoming-date" ${missing?'style="background:var(--warm-soft);color:var(--fam-fg)"':''}>
+        <span class="d-day">${d.getDate()}</span>
+        <span class="d-month">${d.toLocaleDateString('en-US',{month:'short'})}</span>
+      </div>
+      <div class="upcoming-body">
+        <div class="u-client">${escapeHTML(j.clientName)}</div>
+        <div class="u-svc">${escapeHTML(j.service||'(no service)')}${j.paid?' · <strong style="color:var(--accent)">'+fmtMoney(j.paid)+'</strong>':''}${j.hours?' · '+j.hours+'h':''}${missing?' <span style="color:var(--warm);font-weight:600">· tap Edit to log</span>':''}</div>
+      </div>
+      <button class="btn small ${missing?'':'secondary'}" data-edit-past="${j.airtableId}">${missing?'Log':'Edit'}</button>
+    </div>`;
+  }).join('');
+  container.querySelectorAll('[data-edit-past]').forEach(b => b.onclick = () => {
+    const job = jobs.find(x => x.airtableId === b.dataset.editPast);
+    if (job) openScheduleModal({ edit: job });
+  });
+}
+
+// ===== MODAL =====
+const modalBackdrop = document.getElementById('modal-backdrop');
+const modal = document.getElementById('modal');
+function openModal(html) { modal.innerHTML = html; modalBackdrop.classList.add('open'); }
+function closeModal() { modalBackdrop.classList.remove('open'); }
+modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) closeModal(); });
+
+function openScheduleModal({ date, clientName, edit, logMode }) {
+  const isEdit = !!edit;
+  const j = edit || { airtableId: null, clientName: clientName||'', date: date||todayISO(), time:'', service:'', hours:'', paid:'', notes:'' };
+  const isPast = j.date && j.date <= todayISO();
+  const clientsList = clients.slice().sort((a,b) => a.name.localeCompare(b.name));
+
+  // Title and button labels
+  let title, saveLabel;
+  if (logMode && !isEdit) {
+    title = 'Log a completed job';
+    saveLabel = 'Log job';
+  } else if (isEdit && isPast) {
+    title = 'Edit completed job';
+    saveLabel = 'Save changes';
+  } else if (isEdit) {
+    title = 'Edit scheduled job';
+    saveLabel = 'Save changes';
+  } else {
+    title = 'Schedule a job';
+    saveLabel = 'Schedule job';
+  }
+
+  openModal(`
+    <h2>${title}</h2>
+    <div class="modal-row">
+      <label>Client</label>
+      <select id="f-client">
+        <option value="">— select a client —</option>
+        ${clientsList.map(c => `<option value="${escapeHTML(c.name)}" ${c.name===j.clientName?'selected':''}>${escapeHTML(c.name)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="modal-row two-col">
+      <div><label>Date</label><input type="date" id="f-date" value="${j.date}"></div>
+      <div><label>Time (optional)</label><input type="time" id="f-time" value="${j.time||''}"></div>
+    </div>
+    <div class="modal-row">
+      <label>Service</label>
+      <select id="f-service-pick">
+        <option value="">— pick or type custom below —</option>
+        ${COMMON_SERVICES.map(s => `<option ${s===j.service?'selected':''}>${s}</option>`).join('')}
+      </select>
+      <input type="text" id="f-service" value="${escapeHTML(j.service||'')}" placeholder="Or type service" style="margin-top:6px">
+    </div>
+    <div class="modal-row two-col">
+      <div><label>${isPast||logMode?'Hours worked':'Hours (est.)'}</label><input type="number" id="f-hours" step="0.25" min="0" value="${j.hours||''}" placeholder="${isPast||logMode?'How long it took':'Estimate'}"></div>
+      <div><label>${isPast||logMode?'Amount paid':'Quote ($)'}</label><input type="number" id="f-price" min="0" value="${j.paid||''}" placeholder="${isPast||logMode?'Actual amount':'Estimate'}"></div>
+    </div>
+    <div class="modal-row">
+      <label>Notes</label>
+      <textarea id="f-notes" placeholder="Any details about the job…">${escapeHTML(j.notes||'')}</textarea>
+    </div>
+    <div class="modal-actions">
+      ${isEdit?`<button class="btn danger left" id="f-delete">Delete</button>`:''}
+      <button class="btn secondary" id="f-cancel">Cancel</button>
+      <button class="btn" id="f-save">${saveLabel}</button>
+    </div>
+  `);
+  document.getElementById('f-service-pick').onchange = e => {
+    if (e.target.value) document.getElementById('f-service').value = e.target.value;
+  };
+  document.getElementById('f-cancel').onclick = closeModal;
+  document.getElementById('f-save').onclick = async () => {
+    const clientName = document.getElementById('f-client').value.trim();
+    const date = document.getElementById('f-date').value;
+    if (!clientName) { alert('Please select a client.'); return; }
+    if (!date) { alert('Please pick a date.'); return; }
+    const fields = {
+      'Client Name': clientName,
+      'Date': date,
+      'Time': document.getElementById('f-time').value,
+      'Service': document.getElementById('f-service').value.trim(),
+      'Hours': parseFloat(document.getElementById('f-hours').value) || 0,
+      'Paid': parseFloat(document.getElementById('f-price').value) || 0,
+      'Notes': document.getElementById('f-notes').value.trim(),
+      'Scheduled': true,
+    };
+    closeModal();
+    showInd('Saving…', 'saving');
+    if (isEdit) {
+      await patchJob(j.airtableId, fields);
+    } else {
+      const newJob = await postJob(fields);
+      jobs.push(newJob);
+    }
+    const c = getClient(clientName);
+    if (c && (c.status==='todo'||c.status==='reached')) {
+      c.status = 'booked';
+      patchClient(c.airtableId, {'App Status': 'booked'});
+    }
+    renderAll();
+  };
+  if (isEdit) {
+    document.getElementById('f-delete').onclick = async () => {
+      if (confirm('Delete this scheduled job?')) {
+        closeModal();
+        jobs = jobs.filter(x => x.airtableId !== j.airtableId);
+        await deleteJobRecord(j.airtableId);
+        renderAll();
+      }
+    };
+  }
+}
+
+// ===== ADD CLIENT MODAL =====
+document.getElementById('btn-add-client').onclick = () => openClientModal({});
+function openClientModal({ edit }) {
+  const c = edit || { name:'', phone:'', address:'', services:'', notes:'', category:'onetimer' };
+  openModal(`
+    <h2>${edit?'Edit client':'Add a new client'}</h2>
+    <div class="modal-row">
+      <label>Name *</label>
+      <input type="text" id="c-name" value="${escapeHTML(c.name)}" placeholder="Full name">
+    </div>
+    <div class="modal-row two-col">
+      <div><label>Phone</label><input type="tel" id="c-phone" value="${escapeHTML(c.phone)}" placeholder="(503) 555-1234"></div>
+      <div>
+        <label>Category</label>
+        <select id="c-cat">
+          <option value="onetimer" ${c.category==='onetimer'?'selected':''}>One-timer (yellow)</option>
+          <option value="repeater" ${c.category==='repeater'?'selected':''}>Repeater (green)</option>
+          <option value="family" ${c.category==='family'?'selected':''}>Friend/Family (orange)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-row">
+      <label>Address</label>
+      <input type="text" id="c-address" value="${escapeHTML(c.address)}" placeholder="Street, city">
+    </div>
+    <div class="modal-row">
+      <label>Services they want</label>
+      <input type="text" id="c-services" value="${escapeHTML(c.services)}" placeholder="e.g., Blackberry removal, Pressure wash">
+    </div>
+    <div class="modal-row">
+      <label>Notes</label>
+      <textarea id="c-notes" placeholder="Where you met them, special instructions, etc.">${escapeHTML(c.notes)}</textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="c-cancel">Cancel</button>
+      <button class="btn" id="c-save">${edit?'Save changes':'Add client'}</button>
+    </div>
+  `);
+  document.getElementById('c-cancel').onclick = closeModal;
+  document.getElementById('c-save').onclick = async () => {
+    const name = document.getElementById('c-name').value.trim();
+    if (!name) { alert('Please enter a name.'); return; }
+    if (clients.some(x => x.name.toLowerCase() === name.toLowerCase() && (!edit || edit.name !== name))) {
+      if (!confirm('"' + name + '" already exists. Add anyway?')) return;
+    }
+    const fields = {
+      'Name': name,
+      'Phone': formatPhone(document.getElementById('c-phone').value.trim()),
+      'Address': document.getElementById('c-address').value.trim(),
+      'Services': document.getElementById('c-services').value.trim(),
+      'Notes': document.getElementById('c-notes').value.trim(),
+      'Category': document.getElementById('c-cat').value,
+      'App Status': edit ? (edit.status || 'todo') : 'todo',
+    };
+    closeModal();
+    showInd('Saving…', 'saving');
+    if (edit) {
+      await patchClient(edit.airtableId, fields);
+    } else {
+      const newClient = await postClient(fields);
+      clients.push(newClient);
+    }
+    showInd('Saved ✓', 'saved');
+    clearTimeout(savedTimeout);
+    savedTimeout = setTimeout(hideInd, 1500);
+    renderAll();
+  };
+}
+
+// ===== OUTREACH CRUD =====
+async function postOutreach(fields) {
+  const title = fields['Type']==='nextdoor' ? 'Nextdoor post' : `Card drop — ${fields['Neighborhood']||''}`;
+  const d = await atFetch('POST', AT_OUTREACH, { records: [{ fields: { ...fields, Title: title } }] });
+  return mapOutreach(d.records[0]);
+}
+async function patchOutreach(id, fields) {
+  showInd('Saving…', 'saving');
+  try {
+    const d = await atFetch('PATCH', `${AT_OUTREACH}/${id}`, { fields });
+    const idx = outreach.findIndex(o => o.airtableId === id);
+    if (idx !== -1) outreach[idx] = { ...outreach[idx], ...mapOutreach(d) };
+    showInd('Saved ✓', 'saved');
+    clearTimeout(savedTimeout);
+    savedTimeout = setTimeout(hideInd, 1500);
+  } catch(e) { showInd('Save failed!', 'saving'); }
+}
+async function deleteOutreachRecord(id) { await atFetch('DELETE', `${AT_OUTREACH}/${id}`); }
+
+// ===== MAP =====
+let outreachMap = null;
+
+// Geocode cache — persisted to localStorage so client pins load instantly after first visit
+const GEO_KEY = 'geocodeCache_v1';
+const geocodeCache = (() => {
+  return { ...geocodeCacheSeed };
+})();
+function saveGeocodeCache() {}
+
+async function geocode(query) {
+  if (geocodeCache[query]) return geocodeCache[query];
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`, {
+      headers: { 'Accept-Language': 'en', 'User-Agent': 'SummerClientApp/1.0' }
+    });
+    const d = await r.json();
+    if (d && d[0]) {
+      const result = { lat: parseFloat(d[0].lat), lng: parseFloat(d[0].lon) };
+      geocodeCache[query] = result;
+      saveGeocodeCache();
+      return result;
+    }
+  } catch(e) {}
+  return null;
+}
+
+function initMap() {
+  if (outreachMap) return;
+  outreachMap = L.map('outreach-map').setView([45.505, -122.675], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors', maxZoom: 19
+  }).addTo(outreachMap);
+}
+
+async function renderMap() {
+  initMap();
+  outreachMap.eachLayer(l => { if (l instanceof L.Marker || l instanceof L.Circle) outreachMap.removeLayer(l); });
+
+  const clientIcon = L.divIcon({
+    className: '', html: '<div style="width:12px;height:12px;border-radius:50%;background:#1a5e3a;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>',
+    iconSize: [12,12], iconAnchor: [6,6]
+  });
+
+  const bounds = [];
+
+  // Card drop zones (instant — coords stored in Airtable)
+  for (const o of outreach) {
+    if (o.type !== 'carddrop') continue;
+    if (!o.lat || !o.lng) continue;
+    bounds.push([o.lat, o.lng]);
+    const radius = o.radius || 300;
+    const circle = L.circle([o.lat, o.lng], {
+      color: '#1d6fa8', fillColor: '#1d6fa8', fillOpacity: 0.18,
+      weight: 2, radius
+    }).addTo(outreachMap);
+    const label = [o.neighborhood, o.houses ? `${o.houses} houses` : '', fmtDate(o.date)].filter(Boolean).join(' · ');
+    circle.bindPopup(`<strong>Card drop</strong><br>${escapeHTML(label)}`);
+  }
+
+  // Client pins — cached addresses resolve instantly; uncached ones trickle in
+  let needsApiDelay = false;
+  for (const c of clients) {
+    if (!c.address) continue;
+    const key = c.address + ', Portland OR';
+    const cached = geocodeCache[key];
+    if (!cached && needsApiDelay) {
+      await new Promise(r => setTimeout(r, 130)); // Nominatim rate limit (only for live requests)
+    }
+    const coords = cached || await geocode(key);
+    if (!coords) continue;
+    if (!cached) needsApiDelay = true;
+    bounds.push([coords.lat, coords.lng]);
+    const popup = `<strong>${escapeHTML(c.name)}</strong><br>${escapeHTML(c.address)}<br><span style="color:#1a5e3a;font-size:11px;text-transform:uppercase">${c.category}</span>`;
+    L.marker([coords.lat, coords.lng], { icon: clientIcon }).addTo(outreachMap).bindPopup(popup);
+    // Fit bounds progressively so cached pins appear right away
+    if (bounds.length) outreachMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
+  }
+
+  if (bounds.length) outreachMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
+  setTimeout(() => outreachMap.invalidateSize(), 100);
+}
+
+// ===== OUTREACH RENDER =====
+let outreachTypeFilter = 'all', outreachStatusFilter = 'open';
+document.querySelectorAll('[data-otype]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('[data-otype]').forEach(x => x.classList.remove('active'));
+  b.classList.add('active'); outreachTypeFilter = b.dataset.otype; renderOutreachView();
+});
+document.querySelectorAll('[data-ostatus]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('[data-ostatus]').forEach(x => x.classList.remove('active'));
+  b.classList.add('active'); outreachStatusFilter = b.dataset.ostatus; renderOutreachView();
+});
+document.getElementById('btn-add-outreach').onclick = () => openOutreachModal({});
+
+const TYPE_ICON  = { nextdoor:'📣', carddrop:'🚪' };
+const TYPE_LABEL = { nextdoor:'Nextdoor', carddrop:'Card drop' };
+
+function renderOutreachView() {
+  renderMap();
+  const today = todayISO();
+  let list = outreach.slice();
+  if (outreachTypeFilter !== 'all') list = list.filter(o => o.type === outreachTypeFilter);
+  if (outreachStatusFilter === 'open') list = list.filter(o => o.status !== 'done');
+  else if (outreachStatusFilter === 'done') list = list.filter(o => o.status === 'done');
+  list.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+
+  const container = document.getElementById('outreach-items');
+  if (!list.length) {
+    container.innerHTML = '<div class="empty"><div class="em">📣</div>No outreach yet. Tap + Add to plan your next Nextdoor post or card drop.</div>';
+    return;
+  }
+  container.innerHTML = '<div class="outreach-list-wrap">' + list.map(o => {
+    const isOverdue = o.status==='planned' && o.date && o.date < today;
+    const isDone = o.status==='done';
+    let detail = '';
+    if (o.type==='nextdoor' && o.content)
+      detail = `<div class="outreach-detail">${escapeHTML(o.content.slice(0,140))}${o.content.length>140?'…':''}</div>`;
+    else if (o.type==='carddrop') {
+      const parts = [];
+      if (o.neighborhood) parts.push(escapeHTML(o.neighborhood));
+      if (o.houses) parts.push(`${o.houses} houses`);
+      if (o.clientName) parts.push(`near ${escapeHTML(o.clientName)}`);
+      if (parts.length) detail = `<div class="outreach-detail">${parts.join(' · ')}</div>`;
+    }
+    return `<div class="outreach-card${isDone?' done':''}">
+      <div class="outreach-icon ${o.type}">${TYPE_ICON[o.type]||'📋'}</div>
+      <div class="outreach-body">
+        <div class="outreach-meta">
+          <span>${TYPE_LABEL[o.type]||o.type}</span>
+          ${o.date?`<span>·</span><span class="${isOverdue?'overdue':''}">${isOverdue?'⚠ Overdue · ':''}${fmtDate(o.date)}</span>`:''}
+          ${isDone?'<span>·</span><span class="done-tag">✓ Done</span>':''}
+        </div>
+        ${detail}
+        ${o.notes?`<div class="outreach-detail" style="margin-top:3px;font-style:italic">${escapeHTML(o.notes)}</div>`:''}
+      </div>
+      <div class="outreach-actions">
+        ${!isDone?`<button class="btn small" data-done-o="${o.airtableId}">Done</button>`:''}
+        <button class="btn small secondary" data-edit-o="${o.airtableId}">Edit</button>
+        <button class="btn small danger" data-del-o="${o.airtableId}">🗑</button>
+      </div>
+    </div>`;
+  }).join('') + '</div>';
+
+  container.querySelectorAll('[data-done-o]').forEach(b => b.onclick = async () => {
+    const o = outreach.find(x => x.airtableId===b.dataset.doneO);
+    if (o) { o.status='done'; await patchOutreach(o.airtableId,{Status:'done'}); renderOutreachView(); }
+  });
+  container.querySelectorAll('[data-edit-o]').forEach(b => b.onclick = () => {
+    const o = outreach.find(x => x.airtableId===b.dataset.editO);
+    if (o) openOutreachModal({ edit: o });
+  });
+  container.querySelectorAll('[data-del-o]').forEach(b => b.onclick = async () => {
+    if (!confirm('Delete this outreach item?')) return;
+    outreach = outreach.filter(x => x.airtableId!==b.dataset.delO);
+    await deleteOutreachRecord(b.dataset.delO);
+    renderOutreachView();
+  });
+}
+
+// ===== OUTREACH MODAL =====
+let pendingDropLat = null, pendingDropLng = null, pendingRadius = 300;
+
+function openOutreachModal({ edit }={}) {
+  pendingDropLat = edit?.lat || null;
+  pendingDropLng = edit?.lng || null;
+  pendingRadius = edit?.radius || 300;
+
+  const o = edit || { type:'nextdoor', date:todayISO(), status:'planned', content:'', neighborhood:'', houses:'', clientName:'', notes:'' };
+  const cl = clients.slice().sort((a,b)=>a.name.localeCompare(b.name));
+
+  openModal(`
+    <h2>${edit?'Edit outreach':'Add outreach'}</h2>
+    <div class="modal-row">
+      <label>Type</label>
+      <select id="o-type">
+        <option value="nextdoor" ${o.type==='nextdoor'?'selected':''}>📣 Nextdoor post</option>
+        <option value="carddrop" ${o.type==='carddrop'?'selected':''}>🚪 Card drop</option>
+      </select>
+    </div>
+    <div class="modal-row">
+      <label>Date</label>
+      <input type="date" id="o-date" value="${o.date}">
+    </div>
+    <div id="o-nextdoor">
+      <div class="modal-row"><label>Post content</label><textarea id="o-content" placeholder="Write your Nextdoor post here…">${escapeHTML(o.content)}</textarea></div>
+    </div>
+    <div id="o-carddrop" style="display:none">
+      <div class="modal-row">
+        <label>Near which client? (optional)</label>
+        <select id="o-client">
+          <option value="">— select a client —</option>
+          ${cl.map(c=>`<option value="${escapeHTML(c.name)}" ${c.name===o.clientName?'selected':''}>${escapeHTML(c.name)}${c.address?' — '+escapeHTML(c.address.split(',')[0]):''}</option>`).join('')}
+        </select>
+      </div>
+      <div class="modal-row"><label>Neighborhood / Street</label><input type="text" id="o-hood" value="${escapeHTML(o.neighborhood)}" placeholder="e.g. SW Lakebluff area"></div>
+      <div class="modal-row"><label>Houses hit</label><input type="number" id="o-houses" value="${o.houses||''}" placeholder="e.g. 40" min="0"></div>
+      <div class="modal-row">
+        <label>Zone size on map</label>
+        <div class="radius-row">
+          <button type="button" class="radius-btn ${pendingRadius===200?'active':''}" data-r="200">Small (~3 blocks)</button>
+          <button type="button" class="radius-btn ${pendingRadius===350?'active':''}" data-r="350">Medium (~6 blocks)</button>
+          <button type="button" class="radius-btn ${pendingRadius===550?'active':''}" data-r="550">Large (~10 blocks)</button>
+        </div>
+      </div>
+      <div id="map-tap-hint" style="display:block">📍 Tap the map behind this modal to place the center of your card drop zone</div>
+      <div style="font-size:12px;color:var(--ink-muted);margin-top:4px" id="o-coords-label">${pendingDropLat?`📍 Location set (${pendingDropLat.toFixed(4)}, ${pendingDropLng.toFixed(4)})`:'No location set yet — tap map or use neighborhood name'}</div>
+    </div>
+    <div class="modal-row"><label>Notes (optional)</label><textarea id="o-notes" style="min-height:40px" placeholder="Any extra details…">${escapeHTML(o.notes)}</textarea></div>
+    <div class="modal-actions">
+      ${edit?`<button class="btn danger left" id="o-del">Delete</button>`:''}
+      <button class="btn secondary" id="o-cancel">Cancel</button>
+      <button class="btn" id="o-save">${edit?'Save changes':'Add'}</button>
+    </div>
+  `);
+
+  function syncFields() {
+    const t = document.getElementById('o-type').value;
+    document.getElementById('o-nextdoor').style.display = t==='nextdoor'?'':'none';
+    document.getElementById('o-carddrop').style.display = t==='carddrop'?'':'none';
+  }
+  syncFields();
+  document.getElementById('o-type').onchange = syncFields;
+
+  // Radius buttons
+  document.querySelectorAll('.radius-btn').forEach(b => b.onclick = () => {
+    document.querySelectorAll('.radius-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    pendingRadius = parseInt(b.dataset.r);
+  });
+
+  // Client auto-fill neighborhood
+  const oc = document.getElementById('o-client');
+  if (oc) oc.onchange = () => {
+    const c = getClient(oc.value);
+    if (c && c.address) {
+      const street = c.address.split(',')[0].replace(/^\d+\s*/,'').trim();
+      document.getElementById('o-hood').value = street + ' area';
+    }
+  };
+
+  // Map tap to set drop center
+  if (outreachMap) {
+    const mapTapHandler = (e) => {
+      pendingDropLat = e.latlng.lat;
+      pendingDropLng = e.latlng.lng;
+      const lbl = document.getElementById('o-coords-label');
+      if (lbl) lbl.textContent = `📍 Location set (${pendingDropLat.toFixed(4)}, ${pendingDropLng.toFixed(4)})`;
+    };
+    outreachMap.on('click', mapTapHandler);
+    modalBackdrop.addEventListener('click', function cleanup() {
+      outreachMap.off('click', mapTapHandler);
+      modalBackdrop.removeEventListener('click', cleanup);
+    }, { once: true });
+  }
+
+  document.getElementById('o-cancel').onclick = closeModal;
+  document.getElementById('o-save').onclick = async () => {
+    const type = document.getElementById('o-type').value;
+    const date = document.getElementById('o-date').value;
+    if (!date) { alert('Please pick a date.'); return; }
+    const fields = { Type:type, Date:date, Status:edit?o.status:'planned', Notes:document.getElementById('o-notes').value.trim() };
+    if (type==='nextdoor') {
+      fields['Content'] = document.getElementById('o-content').value.trim();
+    } else {
+      fields['Client Name']  = document.getElementById('o-client').value;
+      fields['Neighborhood'] = document.getElementById('o-hood').value.trim();
+      fields['Houses']       = parseInt(document.getElementById('o-houses').value)||0;
+      fields['Radius']       = pendingRadius;
+      if (pendingDropLat) { fields['Lat'] = pendingDropLat; fields['Lng'] = pendingDropLng; }
+    }
+    closeModal(); showInd('Saving…','saving');
+    if (edit) { await patchOutreach(edit.airtableId, fields); }
+    else { const n = await postOutreach(fields); outreach.push(n); }
+    showInd('Saved ✓','saved'); clearTimeout(savedTimeout); savedTimeout=setTimeout(hideInd,1500);
+    renderOutreachView();
+  };
+  if (edit) document.getElementById('o-del').onclick = async () => {
+    if (!confirm('Delete this outreach item?')) return;
+    closeModal();
+    outreach = outreach.filter(x=>x.airtableId!==edit.airtableId);
+    await deleteOutreachRecord(edit.airtableId);
+    renderOutreachView();
+  };
+}
+
+// ===== REFRESH & EXPORT =====
+document.getElementById('btn-refresh').onclick = async () => {
+  const btn = document.getElementById('btn-refresh');
+  btn.style.opacity = '0.4';
+  await loadAll();
+  btn.style.opacity = '1';
+};
+
+document.getElementById('btn-export').onclick = () => {
+  const data = { clients, jobs, exported: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'client-directory-backup-' + todayISO() + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+// ===== STATS VIEW =====
+function classifyService(s) {
+  const t = (s||'').toLowerCase();
+  if (/blackberr/.test(t)) return 'Blackberry removal';
+  if (/pressure|driveway|patio|deck|sidewalk|walkway|wash/.test(t)) return 'Pressure washing';
+  if (/junk|haul|dump|move|pavers|furniture|bed/.test(t)) return 'Junk removal & hauling';
+  if (/yard|bark|weed|chop|wood|seaside|outdoor|stain|post|fig/.test(t)) return 'Yard / outdoor work';
+  return 'Other';
+}
+
+function allJobsFlat() {
+  const today = todayISO();
+  return jobs
+    .filter(j => !j.scheduled || j.date < today)
+    .map(j => ({
+      date: j.date,
+      year: parseInt((j.date||'').slice(0,4)) || null,
+      clientName: j.clientName,
+      service: j.service,
+      paid: j.paid || 0,
+      hours: j.hours || 0,
+    }));
+}
+
+function populateYearFilter() {
+  const sel = document.getElementById('stats-year');
+  const years = [...new Set(allJobsFlat().map(j => j.year).filter(Boolean))].sort();
+  const current = sel.value;
+  sel.innerHTML = '<option value="all">All time</option>' +
+    years.map(y => `<option value="${y}">${y}</option>`).join('');
+  if (current && (current==='all' || years.includes(parseInt(current)))) sel.value = current;
+}
+
+function renderStatsView() {
+  populateYearFilter();
+  const yearSel = document.getElementById('stats-year').value;
+  let jobsList = allJobsFlat();
+  if (yearSel !== 'all') jobsList = jobsList.filter(j => j.year === parseInt(yearSel));
+
+  const totalRev = jobsList.reduce((s,j)=>s+j.paid, 0);
+  const totalHrs = jobsList.reduce((s,j)=>s+j.hours, 0);
+  const avgHourly = totalHrs ? totalRev/totalHrs : 0;
+  const totalJobs = jobsList.length;
+  const avgJob = totalJobs ? totalRev/totalJobs : 0;
+  const uniqueClients = new Set(jobsList.map(j => j.clientName)).size;
+  document.getElementById('stat-tiles').innerHTML = `
+    <div class="stat-tile"><div class="num">${fmtMoney(totalRev)}</div><div class="label">Total revenue</div><div class="sub">${yearSel==='all'?'lifetime':yearSel}</div></div>
+    <div class="stat-tile"><div class="num">${totalHrs.toFixed(1)}h</div><div class="label">Hours worked</div><div class="sub">${totalJobs} job${totalJobs===1?'':'s'}</div></div>
+    <div class="stat-tile"><div class="num">${fmtMoney(Math.round(avgHourly))}/hr</div><div class="label">Avg hourly rate</div><div class="sub">across all services</div></div>
+    <div class="stat-tile"><div class="num">${fmtMoney(Math.round(avgJob))}</div><div class="label">Avg job size</div><div class="sub">${uniqueClients} unique clients</div></div>
+  `;
+
+  const monthly = {};
+  jobsList.forEach(j => {
+    if (!j.date) return;
+    const key = j.date.slice(0,7);
+    if (!monthly[key]) monthly[key] = 0;
+    monthly[key] += j.paid;
+  });
+  const monthKeys = Object.keys(monthly).sort();
+  const monthlyEl = document.getElementById('chart-monthly');
+  if (monthKeys.length === 0) {
+    monthlyEl.innerHTML = '<div class="empty-chart">No data yet for this period.</div>';
+  } else {
+    const maxM = Math.max(...Object.values(monthly));
+    monthlyEl.innerHTML = `
+      <div class="monthly-chart">
+        ${monthKeys.map(k => {
+          const h = (monthly[k]/maxM)*100;
+          return `<div class="monthly-bar" title="${k}: ${fmtMoney(monthly[k])}"><div class="mb-val">${fmtMoney(monthly[k])}</div><div class="mb-fill" style="height:${h}%"></div></div>`;
+        }).join('')}
+      </div>
+      <div class="monthly-labels">
+        ${monthKeys.map(k => {
+          const [y,m] = k.split('-');
+          const label = new Date(parseInt(y), parseInt(m)-1, 1).toLocaleDateString('en-US',{month:'short'}) + ' ' + y.slice(2);
+          return `<div title="${k}">${label}</div>`;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  const svc = {};
+  jobsList.forEach(j => {
+    const k = classifyService(j.service);
+    if (!svc[k]) svc[k] = { paid: 0, hours: 0, count: 0 };
+    svc[k].paid += j.paid; svc[k].hours += j.hours; svc[k].count += 1;
+  });
+  const svcSorted = Object.entries(svc).sort((a,b) => b[1].paid - a[1].paid);
+  document.getElementById('chart-services').innerHTML = renderHBars(svcSorted.map(([k,v]) => [k, v.paid, fmtMoney(v.paid) + ` · ${v.count}j`]));
+
+  const hrSorted = svcSorted
+    .filter(([k,v]) => v.hours > 0)
+    .map(([k,v]) => [k, Math.round(v.paid/v.hours), v.hours.toFixed(1)+'h logged'])
+    .sort((a,b) => b[1] - a[1]);
+  document.getElementById('chart-hourly').innerHTML = renderHBars(hrSorted.map(([k,v,sub]) => [k, v, fmtMoney(v)+'/hr', sub]), 'warm');
+
+  const byClient = {};
+  jobsList.forEach(j => {
+    if (!byClient[j.clientName]) byClient[j.clientName] = { paid: 0, count: 0 };
+    byClient[j.clientName].paid += j.paid; byClient[j.clientName].count += 1;
+  });
+  document.getElementById('chart-clients').innerHTML = renderHBars(
+    Object.entries(byClient).sort((a,b) => b[1].paid - a[1].paid).slice(0,10)
+      .map(([k,v]) => [k, v.paid, fmtMoney(v.paid), `${v.count} visit${v.count===1?'':'s'}`])
+  );
+
+  const allYears = [...new Set(allJobsFlat().map(j=>j.year).filter(Boolean))].sort();
+  if (allYears.length >= 2) {
+    const yoy = allYears.map(y => {
+      const yjobs = allJobsFlat().filter(j => j.year === y);
+      const rev = yjobs.reduce((s,j)=>s+j.paid, 0);
+      const hrs = yjobs.reduce((s,j)=>s+j.hours, 0);
+      return { year: y, rev, hrs, jobs: yjobs.length, hourly: hrs?rev/hrs:0 };
+    });
+    document.getElementById('chart-yoy').innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+        ${yoy.map(y => `
+          <div style="border-left:3px solid var(--accent);padding:8px 12px;background:var(--bg);border-radius:6px">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-soft);font-weight:600">${y.year}</div>
+            <div style="font-size:22px;font-weight:700;color:var(--accent);margin:2px 0">${fmtMoney(y.rev)}</div>
+            <div style="font-size:12px;color:var(--ink-soft)">${y.jobs} jobs · ${y.hrs.toFixed(1)}h · ${fmtMoney(Math.round(y.hourly))}/hr</div>
+          </div>`).join('')}
+      </div>`;
+  } else {
+    document.getElementById('chart-yoy').innerHTML = '<div class="empty-chart">Need data from 2+ years for comparison.</div>';
+  }
+}
+
+function renderHBars(rows, variant) {
+  if (!rows.length) return '<div class="empty-chart">No data.</div>';
+  const max = Math.max(...rows.map(r => r[1]));
+  return rows.map(r => {
+    const pct = max > 0 ? (r[1]/max)*100 : 0;
+    return `<div class="bar-row">
+      <div class="b-label" title="${escapeHTML(r[0])}">${escapeHTML(r[0])}</div>
+      <div class="b-track"><div class="b-fill ${variant||''}" style="width:${pct}%"></div></div>
+      <div class="b-val">${escapeHTML(r[2]||'')}${r[3]?`<div style="font-size:10px;color:var(--ink-soft);font-weight:400">${escapeHTML(r[3])}</div>`:''}</div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('stats-year').addEventListener('change', renderStatsView);
+document.querySelector('[data-tab="stats"]').addEventListener('click', renderStatsView);
+
+function renderAll() {
+  renderStats();
+  renderDirectory();
+  if (document.getElementById('view-schedule').classList.contains('active')) renderCalendar();
+  if (document.getElementById('view-outreach').classList.contains('active')) renderOutreachView();
+  if (document.getElementById('view-stats').classList.contains('active')) renderStatsView();
+}
+
+loadAll();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
