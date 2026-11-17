@@ -2,6 +2,8 @@
 
 A mobile web app I built to run my seasonal outdoor-services business (blackberry removal, pressure washing, junk removal) in the Portland, Oregon area. It replaced a spreadsheet and I use it daily in the field from my phone.
 
+**[Try the live demo](https://brennankm.github.io/field-service-client-directory/)** (works best on a phone; you can install it to your home screen).
+
 > **This is a public demo.** The live version syncs to a private Airtable base. Here, the data layer is replaced by an in-memory store with the same request and response shape, filled with generated sample data. Every client, address, and phone number is fictional.
 
 ## What it does
